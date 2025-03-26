@@ -1,0 +1,52 @@
+---
+# mkdocs_i18n/defaults/main.yml
+
+# Project identity
+mkdocs_site_name: "example.com"
+mkdocs_site_dir: "~/projects/sites/dev/{{ mkdocs_site_name }}"
+mkdocs_repo_url: ""  # Optional GitHub/GitLab repo
+
+# MkDocs paths and build structure
+mkdocs_config_file: "mkdocs.yml"
+mkdocs_docs_dir: "docs"
+mkdocs_output_dir: "site"
+
+# Multilingual content definition
+mkdocs_languages:
+  - code: "en"
+    name: "English"
+    default: true
+    nav:
+      - name: "Home"
+      - name: "About"
+      - name: "Contact"
+  - code: "fr"
+    name: "Français"
+    nav:
+      - name: "Accueil"
+      - name: "À propos"
+      - name: "Contact"
+
+# NOTE: This data will be transformed into `mkdocs_languages_slugged` by a task in tasks/main.yml.
+# That task will build a list of:
+#   - code
+#   - name
+#   - default (if defined)
+#   - nav: a list of { orig, slug } pairs using the `semantic_slug` plugin.
+
+# Example output structure after processing:
+# mkdocs_languages_slugged:
+#   - code: "en"
+#     name: "English"
+#     default: true
+#     nav:
+#       - orig: "Home"
+#         slug: "home"
+#       - orig: "About"
+#         slug: "about"
+
+# Theme and plugins
+mkdocs_theme_name: "material"
+mkdocs_plugins:
+  - search
+  - i18n

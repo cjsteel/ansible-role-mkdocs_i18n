@@ -1,0 +1,19 @@
+---
+# tasks/assert.yml
+
+# Validate mkdocs_languages input
+
+- name: Assert that mkdocs_languages is defined
+  ansible.builtin.assert:
+    that: mkdocs_languages is defined
+    fail_msg: "mkdocs_languages must be defined."
+
+- name: Assert that exactly one language is marked as default
+  ansible.builtin.assert:
+    that:
+      - mkdocs_languages | selectattr('default', 'defined')
+                         | selectattr('default', 'equalto', true)
+                         | list | length == 1
+    fail_msg: >-
+      Exactly ONE language must have `default: true` in mkdocs_languages.
+      Others should omit the key or set `default: false`.

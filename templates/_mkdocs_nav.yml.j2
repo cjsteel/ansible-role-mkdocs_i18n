@@ -1,0 +1,11 @@
+{% for lang in mkdocs_languages_slugged %}
+- locale: {{ lang.code }}
+  default: {{ lang.default | lower }}
+  name: {{ lang.name }}
+  build: true
+  nav:
+{% for item in lang.nav %}
+    - "{{ item.orig }}": "{{ lang.default | ternary('', lang.code ~ '/') }}{{ item.slug }}/index.md"
+{% endfor %}
+{% endfor %}
+

@@ -1,0 +1,65 @@
+---
+# mkdocs_i18n/tasks/main.yml
+
+- name: Apply Asserts
+  import_tasks: assert.yml
+
+- name: Ensure mkdocs site base directory exists
+  ansible.builtin.file:
+    path: "{{ mkdocs_site_dir | expanduser }}/mkdocs"
+    state: directory
+    mode: '0755'
+
+- name: Define mkdocs project paths
+  set_fact:
+    mkdocs_docs_path: "{{ mkdocs_site_dir | expanduser }}/mkdocs/{{ mkdocs_docs_dir }}"
+    mkdocs_config_path: "{{ mkdocs_site_dir | expanduser }}/mkdocs/{{ mkdocs_config_file }}"
+
+- name: Initialize mkdocs_languages_slugged as empty list
+  set_fact:
+    mkdocs_languages_slugged: []
+
+- name: Prepare slugified nav entries for each language
+  set_fact:
+    mkdocs_languages_slugged: "{{ mkdocs_languages_slugged + [ processed_lang ] }}"
+  vars:
+    processed_lang:
+      code: "{{ item.code }}"
+      name: "{{ item.name }}"
+      default: "{{ item.default | default(false) }}"
+      nav: >-
+        {{ item.nav | map(attribute='name') | map('build_nav_entry', item.code) | list }}
+  loop: "{{ mkdocs_languages }}"
+  loop_control:
+    label: "{{ item.code }}"
+
+- name: Confirm content of mkdocs_languages_slugged
+  debug:
+    var: mkdocs_languages_slugged
+
+- name: Create docs directory structure for nav entries
+  ansible.builtin.file:
+    path: >-
+      {{ mkdocs_docs_path ~ '/' ~ (item.1.code | default(item.0.code)) ~ '/' ~ item.1.slug }}
+    state: directory
+    mode: '0755'
+  loop: "{{ mkdocs_languages_slugged | subelements('nav') }}"
+  loop_control:
+    label: "{{ item.1.slug }}"
+
+- name: Create index.md in each nav section
+  ansible.builtin.copy:
+    dest: >-
+      {{ mkdocs_docs_path ~ '/' ~ (item.1.code | default(item.0.code)) ~ '/' ~ item.1.slug ~ '/index.md' }}
+    content: "# {{ item.1.name }}\n"
+    mode: '0644'
+  loop: "{{ mkdocs_languages_slugged | subelements('nav') }}"
+  loop_control:
+    label: "{{ item.1.slug }}"
+
+- name: Render mkdocs.yml configuration file
+  ansible.builtin.template:
+    src: "mkdocs.yml.j2"
+    dest: "{{ mkdocs_config_path }}"
+    mode: '0644'
+    validate: "yamllint -d relaxed %s"

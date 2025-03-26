@@ -1,0 +1,41 @@
+site_name: "{{ mkdocs_site_name }}"
+
+theme:
+  name: {{ mkdocs_theme_name }}
+  language: {{ (mkdocs_languages_slugged | selectattr("default", "equalto", true) | first).code }}
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - i18n
+
+use_directory_urls: true
+
+extra:
+  alternate:
+{% for lang in mkdocs_languages_slugged %}
+    - name: {{ lang.name }}
+      link: /{{ lang.code }}/
+      lang: {{ lang.code }}
+{% endfor %}
+
+plugins:
+  - search
+  - i18n:
+      reconfigure_material: true
+      docs_structure: folder
+      fallback_to_default: true
+      reconfigure_search: true
+      languages:
+{% for lang in mkdocs_languages_slugged %}
+        - locale: {{ lang.code }}
+          default: {{ lang.default | bool }}
+          name: {{ lang.name }}
+          build: true
+          nav:
+{% for entry in lang.nav %}
+            - {{ entry.name }}: {{ '' if lang.default else entry.code ~ '/' }}{{ entry.slug }}/index.md
+{% endfor %}
+{% endfor %}
