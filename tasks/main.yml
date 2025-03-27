@@ -57,6 +57,15 @@
   loop_control:
     label: "{{ item.1.slug }}"
 
+- name: Render docs/index.md for default language
+  ansible.builtin.template:
+    src: index.md.j2
+    dest: "{{ mkdocs_docs_path | regex_replace('/' ~ default_lang.code ~ '$', '') }}/index.md"
+    mode: '0644'
+  vars:
+    default_lang: "{{ mkdocs_languages_slugged | selectattr('default', 'equalto', true) | first }}"
+
+
 - name: Render mkdocs.yml configuration file
   ansible.builtin.template:
     src: "mkdocs.yml.j2"

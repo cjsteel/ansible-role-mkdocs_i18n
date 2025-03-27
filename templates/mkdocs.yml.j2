@@ -17,7 +17,7 @@ extra:
   alternate:
 {% for lang in mkdocs_languages_slugged %}
     - name: {{ lang.name }}
-      link: /{{ lang.code }}/
+      link: "{% if lang.default %}/{% else %}/{{ lang.code }}/{% endif %}"
       lang: {{ lang.code }}
 {% endfor %}
 
@@ -31,11 +31,11 @@ plugins:
       languages:
 {% for lang in mkdocs_languages_slugged %}
         - locale: {{ lang.code }}
-          default: {{ lang.default | bool }}
+          default: {{ lang.default | lower }}
           name: {{ lang.name }}
           build: true
           nav:
 {% for entry in lang.nav %}
-            - {{ entry.name }}: {{ '' if lang.default else entry.code ~ '/' }}{{ entry.slug }}/index.md
+            - "{{ entry.name | replace('"', '\\"') }}": "{% if not lang.default %}{{ lang.code }}/{% endif %}{{ entry.slug }}/index.md"
 {% endfor %}
 {% endfor %}

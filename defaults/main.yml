@@ -17,13 +17,13 @@ mkdocs_languages:
     name: "English"
     default: true
     nav:
-      - name: "Home"
+      - name: "Home"    # Required
       - name: "About"
       - name: "Contact"
   - code: "fr"
     name: "Français"
     nav:
-      - name: "Accueil"
+      - name: "Accueil" # Required
       - name: "À propos"
       - name: "Contact"
 

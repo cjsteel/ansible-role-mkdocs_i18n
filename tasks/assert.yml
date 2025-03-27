@@ -17,3 +17,13 @@
     fail_msg: >-
       Exactly ONE language must have `default: true` in mkdocs_languages.
       Others should omit the key or set `default: false`.
+
+- name: Assert each language defines a non-empty nav list
+  ansible.builtin.assert:
+    that:
+      - item.nav is defined
+      - item.nav | length > 0
+    fail_msg: "Each mkdocs_languages entry must include at least one nav item (e.g., the home page)."
+  loop: "{{ mkdocs_languages }}"
+  loop_control:
+    label: "{{ item.code }}"
